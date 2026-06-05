@@ -1,8 +1,7 @@
 import Die from "./die.jsx"
 
 export default function DieContainer(props){
-
-    const dieElement = props.dieProp.map( (ele,ind) => <Die id={ind} key={ind} value={ele.value} isHeld={ele.isHeld} holdDice={props.holdDice}/>)
+    const dieElement = props.dieProp.map((ele) => <Die id={ele.id} key={ele.id} ref={(el) => props.refs.current[ele.id] = el} value={ele.value} isHeld={ele.isHeld} holdDice={props.holdDice}/>)
 
 
     return(

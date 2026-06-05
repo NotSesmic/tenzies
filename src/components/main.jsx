@@ -1,6 +1,9 @@
 import {useState,useEffect,useRef} from "react"
 import DieContainer from "./dieContainer.jsx"
 import RollDie from "./rollDie.jsx"
+import {nanoid} from "nanoid";
+import gsap from "gsap"
+import {useGSAP} from "@gsap/react"
 
 export default function Main(){
 
@@ -9,6 +12,9 @@ export default function Main(){
     const [gameWon,setGameWon] = useState(false);
     const heldDice = Arr.filter(ele => ele.isHeld).length
     const firstHeldValue = useRef(null);
+    const dieRefs = useRef({});
+
+
 
 
     useEffect(() =>
@@ -23,11 +29,11 @@ export default function Main(){
     function getDieVal(){
          return new Array(10)
                             .fill(0)
-                            .map((val,index)=>{
+                            .map(()=>{
                                 return{
                                     value:Math.ceil(Math.random()*6),
                                      isHeld: false,
-                                    id: index,
+                                    id: nanoid(),
                                 }
                             })
     }
@@ -50,15 +56,27 @@ export default function Main(){
         )
     }
 
+    useGSAP(() =>{
+        Arr.forEach((ele) => {
+            if(!ele.isHeld) {
+                gsap.to(dieRefs.current[ele.id],{rotation:360})
+            }
+
+        })
+
+    },{scope:dieRefs})
+
     function gameOver(){
         setArr(getDieVal)
         firstHeldValue.current = null;
         setGameWon(prev => !prev)
     }
 
+
+
     return(
         <>
-            <DieContainer dieProp={Arr} holdDice={holdDice}/>
+            <DieContainer refs={dieRefs} dieProp={Arr} holdDice={holdDice}/>
             <RollDie handelClick={rollDie} gameCondition={gameWon} gameOver={gameOver}/>
         </>
     )
