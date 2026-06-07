@@ -40,16 +40,33 @@ export default function Main(){
     // eslint-disable-next-line react-hooks/refs
     const rollDice = contextSafe(() => {
         roll.current.clear()
+
         Arr.forEach((ele) => {
-            if(!ele.isHeld){
-                roll.current.to(dieRefs.current[ele.id],
-                    {
-                        rotation: "+=360",
-                        transformOrigin: "50% 50%",
-                        duration: ".75",
-                        clearProps: "all",
-                    }
-                    ,"<")
+            if(!ele.isHeld) {
+                roll.current.set(dieRefs.current[ele.id], {
+                    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1), 0 0 0px 0px rgba(0,0,0,0)"
+                }, "<")
+            }
+        })
+        Arr.forEach((ele) => {
+            if(!ele.isHeld) {
+                roll.current.to(dieRefs.current[ele.id], {
+                    rotation: "+=360",
+                    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1), 0 0 15px 5px rgba(0,0,0,0.3)",
+                    duration: .75,
+                    ease: "sine.inOut",
+
+                }, "<")
+            }
+        })
+        Arr.forEach((ele) => {
+            if(!ele.isHeld) {
+                roll.current.to(dieRefs.current[ele.id], {
+                    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1), 0 0 0px 0px rgba(0,0,0,0)",
+                    duration: 0.1,
+                    ease: "sine.out",
+                    clearProps:"all"
+                })
             }
         })
         roll.current.play(0)
@@ -122,7 +139,7 @@ export default function Main(){
             // eslint-disable-next-line react-hooks/refs
         },{scope:dieContainer})
 
-    // GSDevTools.create(diePress)
+    // GSDevTools.create(rollDice)
 
 
     function gameOver(){
@@ -130,8 +147,6 @@ export default function Main(){
         firstHeldValue.current = null;
         setGameWon(prev => !prev)
     }
-
-
 
     return(
         <>
