@@ -6,12 +6,10 @@ import gsap from "gsap"
 import {useGSAP} from "@gsap/react"
 import {GSDevTools} from "gsap/GSDevTools";
 
-
-export default function Main(){
-
+export default function Main(props){
 
     const [Arr,setArr] = useState(getDieVal);
-    const [gameWon,setGameWon] = useState(false);
+
     const heldDice = Arr.filter(ele => ele.isHeld).length
     const firstHeldValue = useRef(null);
     const dieRefs = useRef({});
@@ -19,13 +17,14 @@ export default function Main(){
     const [isRolling,setIsRolling] =useState(false);
     const roll = useRef();
 
+    gsap.registerPlugin(GSDevTools)
 
     useEffect(() =>
     {
         if(heldDice === 10 && Arr.every(ele => ele.isHeld && ele.value === firstHeldValue.current)){
-            setGameWon(prev=>!prev)
+            props.gameCondition()
         }
-        console.log(gameWon)
+        console.log(props.gameState)
     },[heldDice])
 
     const {contextSafe} = useGSAP(() => {
@@ -63,7 +62,7 @@ export default function Main(){
             if(!ele.isHeld) {
                 roll.current.to(dieRefs.current[ele.id], {
                     boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1), 0 0 0px 0px rgba(0,0,0,0)",
-                    duration: 0.1,
+                    duration: 0.08,
                     ease: "sine.out",
                     clearProps:"all"
                 })
@@ -105,7 +104,7 @@ export default function Main(){
 
     }
 
-    gsap.registerPlugin(GSDevTools)
+
 
     // eslint-disable-next-line react-hooks/refs
         const diePress = contextSafe((prop) => {
@@ -139,19 +138,17 @@ export default function Main(){
             // eslint-disable-next-line react-hooks/refs
         },{scope:dieContainer})
 
-    // GSDevTools.create(rollDice)
-
 
     function gameOver(){
         setArr(getDieVal)
         firstHeldValue.current = null;
-        setGameWon(prev => !prev)
+        props.gameCondition()
     }
 
     return(
         <>
             <DieContainer refContainer={dieContainer} pressDice={diePress} refs={dieRefs} dieProp={Arr} holdDice={holdDice}/>
-            <RollDie isRolling={isRolling} rollDice={rollDice} handelClick={rollDie} gameCondition={gameWon} gameOver={gameOver}/>
+            <RollDie isRolling={isRolling}  rollDice={rollDice} handelClick={rollDie} gameCondition={props.gameState} gameOver={gameOver}/>
         </>
     )
 }
