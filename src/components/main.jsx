@@ -4,6 +4,8 @@ import RollDie from "./rollDie.jsx"
 import {nanoid} from "nanoid";
 import gsap from "gsap"
 import {useGSAP} from "@gsap/react"
+import {GSDevTools} from "gsap/GSDevTools";
+
 
 export default function Main(){
 
@@ -20,7 +22,7 @@ export default function Main(){
 
     useEffect(() =>
     {
-        if(heldDice === 10 && Arr.every(ele => ele.value === firstHeldValue.current)){
+        if(heldDice === 10 && Arr.every(ele => ele.isHeld && ele.value === firstHeldValue.current)){
             setGameWon(prev=>!prev)
         }
         console.log(gameWon)
@@ -35,6 +37,7 @@ export default function Main(){
     },{scope:dieContainer})
 
 
+    // eslint-disable-next-line react-hooks/refs
     const rollDice = contextSafe(() => {
         roll.current.clear()
         Arr.forEach((ele) => {
@@ -43,14 +46,14 @@ export default function Main(){
                     {
                         rotation: "+=360",
                         transformOrigin: "50% 50%",
-                        duration: ".75"
+                        duration: ".75",
+                        clearProps: "all",
                     }
                     ,"<")
             }
         })
         roll.current.play(0)
     })
-
 
     function getDieVal(){
          return new Array(10)
@@ -73,14 +76,55 @@ export default function Main(){
     }
 
     function holdDice(ID){
-        setArr(prev => prev.map( die =>
-            die.id === ID ? {...die, isHeld: !die.isHeld} : die
-            )
-        )
+
         if(firstHeldValue.current === null){
             firstHeldValue.current = Arr.find(die => die.id === ID)?.value
         }
+
+        setArr(prev => prev.map(die =>
+                (die.id === ID && die.value === firstHeldValue.current ) ? {...die, isHeld: !die.isHeld} : die
+            )
+        )
+
     }
+
+    gsap.registerPlugin(GSDevTools)
+
+    // eslint-disable-next-line react-hooks/refs
+        const diePress = contextSafe((prop) => {
+
+            if(firstHeldValue.current === null) return
+
+            if(prop.value !== firstHeldValue.current){
+                const tl = gsap.timeline();
+                    tl.to(dieRefs.current[prop.id], {
+                        scale: 1.2,
+                        duration: 0.15,
+                    })
+                    .to(dieRefs.current[prop.id], {
+
+                        keyframes: [
+                            { rotation: 10, backgroundColor: "#ff3f43", duration: 0.07 },
+                            { rotation: -10, duration: 0.07 },
+                            { rotation: 10, duration: 0.07 },
+                            { rotation: -10, duration: 0.07 },
+                            { rotation: 0, duration: 0.07},
+                        ],
+                    },"<")
+                    .to(dieRefs.current[prop.id], {
+                        scale: 1,
+                        backgroundColor:"#f3f4f6",
+                        duration: 0.15,
+                        clearProps: "all"
+                    },">");
+                }
+
+            // eslint-disable-next-line react-hooks/refs
+        },{scope:dieContainer})
+
+    // GSDevTools.create(diePress)
+
+
     function gameOver(){
         setArr(getDieVal)
         firstHeldValue.current = null;
@@ -91,7 +135,7 @@ export default function Main(){
 
     return(
         <>
-            <DieContainer refContainer={dieContainer} refs={dieRefs} dieProp={Arr} holdDice={holdDice}/>
+            <DieContainer refContainer={dieContainer} pressDice={diePress} refs={dieRefs} dieProp={Arr} holdDice={holdDice}/>
             <RollDie isRolling={isRolling} rollDice={rollDice} handelClick={rollDie} gameCondition={gameWon} gameOver={gameOver}/>
         </>
     )
