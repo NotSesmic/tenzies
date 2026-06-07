@@ -7,7 +7,7 @@ export default function Roll(props){
     const playAgain = useRef();
 
     useGSAP(() => {
-
+        if(!playAgain.current) return;
         const tl = gsap.timeline();
         tl.from(playAgain.current, {
             alpha: 0,

@@ -72,6 +72,7 @@ export default function Main(props){
     })
 
     function getDieVal(){
+        console.log("I was called")
          return new Array(10)
                             .fill(0)
                             .map(()=>{
