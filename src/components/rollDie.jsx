@@ -14,7 +14,7 @@ export default function Roll(props){
             y:20,
             duration:3
         })
-    },[props.gameCondition])
+    }, {dependencies: [props.gameCondition]})
 
     return(
         <>
